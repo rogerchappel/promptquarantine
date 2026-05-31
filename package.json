@@ -4,6 +4,7 @@
   "description": "Local-first CLI for quarantining untrusted prompt content.",
   "type": "module",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "promptquarantine": "./dist/cli.js"
   },
@@ -12,16 +13,26 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test test/*.test.js",
+    "smoke": "node dist/cli.js --help && node dist/cli.js scan test/fixtures/benign.md && node dist/cli.js manifest test/fixtures/hostile-issue.md",
     "package:smoke": "npm pack --dry-run",
-    "release:check": "npm test && npm run package:smoke"
+    "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke"
   },
-  "keywords": [],
-  "author": "StackForge User",
+  "keywords": [
+    "agents",
+    "cli",
+    "local-first",
+    "prompt-injection",
+    "security",
+    "untrusted-content"
+  ],
+  "author": "Roger Chappel",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^25.9.1",

@@ -50,7 +50,6 @@ npx promptquarantine scan suspicious-issue.md --config promptquarantine.json
 ```
 
 `allowTerms` accepts rule IDs to suppress for a local workflow.
-```
 
 ## Verify
 
