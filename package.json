@@ -25,7 +25,8 @@
     "test": "npm run build && node --test test/*.test.js",
     "smoke": "node dist/cli.js --help && node dist/cli.js scan test/fixtures/benign.md && node dist/cli.js manifest test/fixtures/hostile-issue.md",
     "package:smoke": "npm pack --dry-run",
-    "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke"
+    "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke",
+    "release:readiness": "node scripts/validate-release-readiness.mjs"
   },
   "keywords": [
     "agents",
