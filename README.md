@@ -85,26 +85,10 @@ should be small, reviewable, and verified before review.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance. Replace
-the default security policy before publishing the generated repository.
-
-These links assume this README has been copied to the generated repository root.
+See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance. Do not
+paste private prompts, credentials, or proprietary incident text into public
+issues; reduce sensitive examples to minimal fixtures first.
 
 ## License
 
 MIT
-
-## Verification
-
-Run the release-readiness checks before publishing or cutting a PR:
-
-```bash
-npm run check
-npm run build
-npm run test
-npm run smoke
-npm run package:smoke
-npm run release:check
-```
-
-Use `npm run package:smoke` or `npm pack --dry-run` to confirm the published tarball includes the support docs and runnable package contents.
