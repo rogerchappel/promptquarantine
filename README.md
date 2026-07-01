@@ -16,7 +16,7 @@ npm install
 npm run build
 ```
 
-## Use
+## Quickstart
 
 Scan a file and print a human-readable report:
 
