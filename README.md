@@ -92,3 +92,7 @@ issues; reduce sensitive examples to minimal fixtures first.
 ## License
 
 MIT
+
+## Limitations
+
+promptquarantine is a local-first helper for preparing reviewable evidence. It does not replace human review, live system validation, or project-specific policy checks, and generated output should be inspected before use in release or operational decisions.
