@@ -12,6 +12,12 @@ requireField(Array.isArray(packageJson.files) && packageJson.files.length > 0, '
 requireField(scripts['package:smoke'], 'package.json scripts must include package:smoke');
 requireField(scripts['release:check'], 'package.json scripts must include release:check');
 
+for (const file of ['README.md', 'LICENSE', 'SECURITY.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'CODE_OF_CONDUCT.md']) {
+  if (fs.existsSync(path.join(root, file))) {
+    requireField(packageJson.files.includes(file), 'package.json files must include ' + file);
+  }
+}
+
 const workflowDir = path.join(root, '.github', 'workflows');
 if (fs.existsSync(workflowDir)) {
   const workflowFiles = fs.readdirSync(workflowDir).filter((file) => /\.ya?ml$/.test(file));
