@@ -63,7 +63,7 @@ function parseArgs(argv: string[]): ParsedArgs {
 
     if (arg === "--config") {
       const configPath = argv[index + 1];
-      if (!configPath) {
+      if (!configPath || configPath.startsWith("-")) {
         throw new Error("--config requires a path");
       }
       parsed.configPath = configPath;
@@ -71,7 +71,15 @@ function parseArgs(argv: string[]): ParsedArgs {
       continue;
     }
 
+    if (arg.startsWith("-")) {
+      throw new Error(`unknown option: ${arg}\n\n${usage}`);
+    }
+
     remaining.push(arg);
+  }
+
+  if (remaining.length > 2) {
+    throw new Error(`unexpected argument: ${remaining[2]}\n\n${usage}`);
   }
 
   const [command, file] = remaining;

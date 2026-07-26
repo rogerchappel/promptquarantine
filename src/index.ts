@@ -89,10 +89,21 @@ export function loadConfig(configText?: string): PromptQuarantineConfig {
     return {};
   }
 
-  const parsed = JSON.parse(configText) as PromptQuarantineConfig;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(configText);
+  } catch {
+    throw new Error("invalid config: expected valid JSON");
+  }
+
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    throw new Error("invalid config: expected a JSON object");
+  }
+
+  const config = parsed as Record<string, unknown>;
   return {
-    allowTerms: Array.isArray(parsed.allowTerms) ? parsed.allowTerms : [],
-    denyTerms: Array.isArray(parsed.denyTerms) ? parsed.denyTerms : []
+    allowTerms: validateConfigTerms(config, "allowTerms"),
+    denyTerms: validateConfigTerms(config, "denyTerms")
   };
 }
 
@@ -178,4 +189,22 @@ export async function readInputFile(filePath: string): Promise<{ text: string; s
 
 function escapeRegExp(term: string): string {
   return term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function validateConfigTerms(config: Record<string, unknown>, key: "allowTerms" | "denyTerms"): string[] {
+  const value = config[key];
+  if (value === undefined) {
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    throw new Error(`invalid config: ${key} must be an array of non-empty strings`);
+  }
+
+  const invalidIndex = value.findIndex((term) => typeof term !== "string" || term.trim().length === 0);
+  if (invalidIndex !== -1) {
+    throw new Error(`invalid config: ${key}[${invalidIndex}] must be a non-empty string`);
+  }
+
+  return value as string[];
 }
