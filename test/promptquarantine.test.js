@@ -3,7 +3,7 @@ import { execFile } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import { promisify } from "node:util";
 import { test } from "node:test";
-import { createManifest, scanText, wrapText } from "../dist/index.js";
+import { createManifest, loadConfig, scanText, wrapText } from "../dist/index.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -43,10 +43,72 @@ test("configured deny terms affect manifests", () => {
   assert.equal(manifest.matches[0]?.id, "deny-term:internal-codename");
 });
 
+test("configured allow terms suppress matching rules", () => {
+  const config = loadConfig('{"allowTerms":["prompt-injection-language"],"denyTerms":["internal-codename"]}');
+  const report = scanText("Act as a helper for internal-codename.", "note.txt", config);
+
+  assert.deepEqual(
+    report.matches.map((match) => match.id),
+    ["deny-term:internal-codename"]
+  );
+});
+
+test("config rejects non-string and empty term entries", () => {
+  assert.throws(
+    () => loadConfig('{"allowTerms":[7]}'),
+    /invalid config: allowTerms\[0\] must be a non-empty string/
+  );
+  assert.throws(
+    () => loadConfig('{"denyTerms":[""]}'),
+    /invalid config: denyTerms\[0\] must be a non-empty string/
+  );
+  assert.throws(
+    () => loadConfig('{"denyTerms":["   "]}'),
+    /invalid config: denyTerms\[0\] must be a non-empty string/
+  );
+});
+
 test("cli manifest emits JSON", async () => {
   const { stdout } = await execFileAsync("node", ["dist/cli.js", "manifest", "test/fixtures/hostile-issue.md"]);
   const manifest = JSON.parse(stdout);
 
   assert.equal(manifest.risk, "high");
   assert.match(manifest.hash, /^[a-f0-9]{64}$/);
+});
+
+test("cli rejects extra positional arguments", async () => {
+  await assert.rejects(
+    execFileAsync("node", ["dist/cli.js", "scan", "test/fixtures/benign.md", "unexpected-extra"]),
+    (error) => {
+      assert.match(error.stderr, /promptquarantine: unexpected argument: unexpected-extra/);
+      return true;
+    }
+  );
+});
+
+test("cli rejects unknown options", async () => {
+  await assert.rejects(
+    execFileAsync("node", ["dist/cli.js", "scan", "test/fixtures/benign.md", "--verbose"]),
+    (error) => {
+      assert.match(error.stderr, /promptquarantine: unknown option: --verbose/);
+      return true;
+    }
+  );
+});
+
+test("cli reports invalid config entries before scanning", async () => {
+  await assert.rejects(
+    execFileAsync("node", [
+      "dist/cli.js",
+      "scan",
+      "test/fixtures/benign.md",
+      "--config",
+      "test/fixtures/invalid-config.json"
+    ]),
+    (error) => {
+      assert.match(error.stderr, /promptquarantine: invalid config: allowTerms\[0\] must be a non-empty string/);
+      assert.doesNotMatch(error.stderr, /toLowerCase/);
+      return true;
+    }
+  );
 });
