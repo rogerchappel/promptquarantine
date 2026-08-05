@@ -11,9 +11,16 @@ complete prompt-injection defense.
 
 ## Install
 
+`promptquarantine` has not had its first npm release yet. Until a release is
+listed on npm, use this checkout directly; the `npx promptquarantine` examples
+below describe the installed package and are not registry-install instructions.
+
 ```sh
+git clone https://github.com/rogerchappel/promptquarantine.git
+cd promptquarantine
 npm install
 npm run build
+npm link
 ```
 
 ## Quickstart
