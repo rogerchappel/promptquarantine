@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -27,8 +28,11 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          registry-url: https://registry.npmjs.org
       - name: Install dependencies
         run: npm ci
+      - name: Validate prospective release tag
+        run: npm run release:tag-check -- "v$(node -p "require('./package.json').version")"
       - name: Install ReleaseBox
         run: |
           set -euo pipefail
@@ -39,6 +43,8 @@ jobs:
         run: node /tmp/releasebox/bin/releasebox.js check .
       - name: Run release checks
         run: npm run release:check
+      - name: Exercise npm publish
+        run: npm publish --dry-run --provenance --access public
       - name: Release notes preview
         run: |
           node /tmp/releasebox/bin/releasebox.js notes . > release-notes-preview.md
