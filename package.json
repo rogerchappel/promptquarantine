@@ -6,7 +6,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "promptquarantine": "./dist/cli.js"
+    "promptquarantine": "dist/cli.js"
   },
   "exports": {
     ".": "./dist/index.js"
@@ -25,7 +25,8 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test test/*.test.js",
     "smoke": "node dist/cli.js --help && node dist/cli.js scan test/fixtures/benign.md && node dist/cli.js manifest test/fixtures/hostile-issue.md",
-    "package:smoke": "npm pack --dry-run",
+    "package:smoke": "node scripts/package-smoke.mjs",
+    "release:tag-check": "node scripts/validate-release-tag.mjs",
     "release:check": "npm run check && npm test && npm run smoke && npm run package:smoke",
     "release:readiness": "node scripts/validate-release-readiness.mjs"
   },
