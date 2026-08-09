@@ -56,10 +56,12 @@ Use a local JSON config to add deny terms:
 npx promptquarantine scan suspicious-issue.md --config promptquarantine.json
 ```
 
-`allowTerms` accepts rule IDs to suppress for a local workflow. Both
-`allowTerms` and `denyTerms`, when present, must be arrays containing only
-non-empty strings. Invalid JSON, non-array values, and empty or non-string
-entries are rejected before scanning.
+The accepted config keys are `allowTerms` and `denyTerms`; `allowTerms` accepts
+rule IDs to suppress for a local workflow. Both values, when present, must be
+arrays containing only non-empty strings. Invalid JSON, unknown keys (including
+misspellings), non-array values, and empty or non-string entries are rejected
+before scanning. Config errors name the invalid field so typos cannot silently
+disable an intended rule.
 
 ## Verify
 
