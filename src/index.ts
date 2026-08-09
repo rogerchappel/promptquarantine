@@ -23,6 +23,8 @@ export type PromptQuarantineConfig = {
   denyTerms?: string[];
 };
 
+const configKeys = ["allowTerms", "denyTerms"] as const;
+
 export type ScanResult = {
   source: string;
   hash: string;
@@ -101,6 +103,13 @@ export function loadConfig(configText?: string): PromptQuarantineConfig {
   }
 
   const config = parsed as Record<string, unknown>;
+  const unknownKey = Object.keys(config).find(
+    (key) => !configKeys.includes(key as (typeof configKeys)[number])
+  );
+  if (unknownKey !== undefined) {
+    throw new Error(`invalid config: unknown key "${unknownKey}"; expected only ${configKeys.join(", ")}`);
+  }
+
   return {
     allowTerms: validateConfigTerms(config, "allowTerms"),
     denyTerms: validateConfigTerms(config, "denyTerms")
