@@ -68,6 +68,13 @@ test("config rejects non-string and empty term entries", () => {
   );
 });
 
+test("config rejects unknown keys with the offending field name", () => {
+  assert.throws(
+    () => loadConfig('{"denyterms":["internal-codename"]}'),
+    /invalid config: unknown key "denyterms"; expected only allowTerms, denyTerms/
+  );
+});
+
 test("cli manifest emits JSON", async () => {
   const { stdout } = await execFileAsync("node", ["dist/cli.js", "manifest", "test/fixtures/hostile-issue.md"]);
   const manifest = JSON.parse(stdout);
@@ -108,6 +115,28 @@ test("cli reports invalid config entries before scanning", async () => {
     (error) => {
       assert.match(error.stderr, /promptquarantine: invalid config: allowTerms\[0\] must be a non-empty string/);
       assert.doesNotMatch(error.stderr, /toLowerCase/);
+      return true;
+    }
+  );
+});
+
+test("cli rejects unknown config keys before scanning", async () => {
+  await assert.rejects(
+    execFileAsync("node", [
+      "dist/cli.js",
+      "scan",
+      "test/fixtures/hostile-issue.md",
+      "--config",
+      "test/fixtures/unknown-config-key.json"
+    ]),
+    (error) => {
+      assert.equal(error.code, 1);
+      assert.equal(error.stdout, "");
+      assert.match(
+        error.stderr,
+        /promptquarantine: invalid config: unknown key "denyterms"; expected only allowTerms, denyTerms/
+      );
+      assert.doesNotMatch(error.stderr, /risk:|matches:/);
       return true;
     }
   );
